@@ -5,6 +5,7 @@ import sample.cafekiosk.uinit.Beverage.Americano;
 import sample.cafekiosk.uinit.Beverage.Latte;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CafeKioskTest {
 
@@ -24,6 +25,29 @@ class CafeKioskTest {
 
         assertThat(cafeKiosk.getBeverageList()).hasSize(1);
         assertThat(cafeKiosk.getBeverageList().get(0).getName()).isEqualTo("아메리카노");
+    }
+
+    // 경계값 테스트
+    @Test
+    void addSeveralBeverages() {
+        CafeKiosk cafeKiosk = new CafeKiosk();
+        Americano americano = new Americano();
+
+        cafeKiosk.add(americano, 2);
+
+        assertThat(cafeKiosk.getBeverageList().get(0)).isEqualTo(americano);
+        assertThat(cafeKiosk.getBeverageList().get(1)).isEqualTo(americano);
+    }
+
+    // 경계값 테스트
+    @Test
+    void addZeroBeverages() {
+        CafeKiosk cafeKiosk = new CafeKiosk();
+        Americano americano = new Americano();
+
+        assertThatThrownBy(() -> cafeKiosk.add(americano, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("음료는 1잔 이상 주문하실 수 있습니다.");
     }
 
     @Test
