@@ -1,8 +1,14 @@
 package sample.cafekiosk.uinit;
 
+import org.hibernate.query.sqm.mutation.internal.cte.CteInsertStrategy;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import sample.cafekiosk.uinit.Beverage.Americano;
+import sample.cafekiosk.uinit.Beverage.Beverage;
 import sample.cafekiosk.uinit.Beverage.Latte;
+import sample.cafekiosk.uinit.order.Order;
+
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -18,6 +24,7 @@ class CafeKioskTest {
         System.out.println(">> 담긴 음료  : " + cafeKiosk.getBeverageList().get(0).getName());
     }
 
+    @DisplayName("음료 1개 추가 테스트")
     @Test
     void add() {
         CafeKiosk cafeKiosk = new CafeKiosk();
@@ -75,6 +82,60 @@ class CafeKioskTest {
 
         cafeKiosk.clear();
         assertThat(cafeKiosk.getBeverageList()).isEmpty();
+
+    }
+
+    @Test
+    void calculateTotalPrice() {
+        // given
+        CafeKiosk cafeKiosk = new CafeKiosk();
+        Americano americano = new Americano();
+        Latte latte = new Latte();
+
+        cafeKiosk.add(americano);
+        cafeKiosk.add(latte);
+
+        // when
+        int totalPrice = cafeKiosk.calculateTotalPrice();
+
+        // then
+        assertThat(totalPrice).isEqualTo(8500);
+
+    }
+
+    @Test
+    void createOrder() {
+        CafeKiosk cafeKiosk = new CafeKiosk();
+        Americano americano = new Americano();
+        cafeKiosk.add(americano);
+
+        Order order = cafeKiosk.createOrder();
+
+        assertThat(order.getBeverageList()).hasSize(1);
+        assertThat(order.getBeverageList().get(0).getName()).isEqualTo("아메리카노");
+    }
+
+    @Test
+    void createOrderWithCurrentTime() {
+        CafeKiosk cafeKiosk = new CafeKiosk();
+        Americano americano = new Americano();
+        cafeKiosk.add(americano);
+
+        Order order = cafeKiosk.createOrder(LocalDateTime.of(2024,11,04,10,0));
+
+        assertThat(order.getBeverageList()).hasSize(1);
+        assertThat(order.getBeverageList().get(0).getName()).isEqualTo("아메리카노");
+    }
+
+    @Test
+    void createOrderOutSideOpenTime() {
+        CafeKiosk cafeKiosk = new CafeKiosk();
+        Americano americano = new Americano();
+        cafeKiosk.add(americano);
+
+        assertThatThrownBy(() -> cafeKiosk.createOrder(LocalDateTime.of(2024,11,04,9,59)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("주문시간이 아닙니다. 관리자에게 문의하세요.");
 
     }
 
