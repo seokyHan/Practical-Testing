@@ -22,10 +22,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
-    show-sql: true
     properties:
       hibernate:
-        from_sql: true
+        format_sql: true
+        show_sql: true
     defer-datasource-initialization: true # (2.5~) Hibernate ??? ?? data.sql ??
 
   h2:
@@ -45,7 +45,8 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        from_sql: true
+        format_sql: true
+        show_sql: true
 
   sql:
     init:
