@@ -7,6 +7,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sample.cafekiosk.spring.domain.BaseTimeEntity;
 
+import java.util.List;
+
+import static sample.cafekiosk.spring.domain.product.ProductType.BAKERY;
+import static sample.cafekiosk.spring.domain.product.ProductType.BOTTLE;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
