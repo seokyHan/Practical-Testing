@@ -2,6 +2,7 @@ package sample.cafekiosk.spring.api.service.product;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import sample.cafekiosk.spring.api.controller.product.request.ProductCreateRequest;
 import sample.cafekiosk.spring.api.service.product.response.ProductResponse;
@@ -15,21 +16,30 @@ import java.util.stream.Collectors;
 import static sample.cafekiosk.spring.domain.product.ProductSellingStatus.SELLING;
 import static sample.cafekiosk.spring.domain.product.ProductType.HANDMADE;
 
-@Service
+/**
+ * @Transactional(readOnly = true)
+ * readOnly = true : 읽기전용
+ * CRUD 에서 CUD 동작 X / only READ
+ * JPA : CUD 스냅샷 저장, 변경감지 X (성느으 향상)
+ *
+ * CQRS - Command / Read
+ */
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Service
 public class ProductService {
 
     private final ProductRepository productRepository;
-    public ProductResponse createProduct(ProductCreateRequest request) {
-        String latestProductNumber = createNextProductNumber();
 
-        return ProductResponse.builder()
-                .productNumber(latestProductNumber)
-                .type(request.getType())
-                .sellingStatus(request.getSellingStatus())
-                .name(request.getName())
-                .price(request.getPrice())
-                .build();
+    // 동시성 이슈
+    @Transactional
+    public ProductResponse createProduct(ProductCreateRequest request) {
+        String nextProductNumber = createNextProductNumber();
+
+        Product product = request.toEntity(nextProductNumber);
+        Product savedProduct = productRepository.save(product);
+
+        return ProductResponse.of(savedProduct);
     }
 
     public List<ProductResponse> getSellingProducts() {
