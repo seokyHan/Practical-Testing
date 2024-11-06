@@ -2,6 +2,7 @@ package sample.cafekiosk.spring.domain.order;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sample.cafekiosk.spring.domain.BaseTimeEntity;
@@ -12,6 +13,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static sample.cafekiosk.spring.domain.order.OrderStatus.INIT;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -33,9 +36,10 @@ public class Order extends BaseTimeEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderProduct> orderProducts = new ArrayList<>();
 
-    public Order(List<Product> products, LocalDateTime registeredDateTime) {
-        this.orderStatus = OrderStatus.INIT;
-        this.totalPrice = calculateTotalPrice(products);
+    @Builder
+    private Order(List<Product> products ,OrderStatus orderStatus, LocalDateTime registeredDateTime) {
+        this.orderStatus = orderStatus;
+        this.totalPrice = calculateTotalPrice(products);;
         this.registeredDateTime = registeredDateTime;
         this.orderProducts = products.stream()
                 .map(product -> new OrderProduct(this, product))
@@ -43,7 +47,11 @@ public class Order extends BaseTimeEntity {
     }
 
     public static Order create(List<Product> products, LocalDateTime registeredDatetime) {
-        return new Order(products, registeredDatetime);
+        return Order.builder()
+                .orderStatus(INIT)
+                .products(products)
+                .registeredDateTime(registeredDatetime)
+                .build();
     }
 
     private int calculateTotalPrice(List<Product> products){
