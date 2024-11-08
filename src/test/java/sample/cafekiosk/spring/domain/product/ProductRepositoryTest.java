@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+import sample.cafekiosk.spring.IntegrationTestSupport;
 
 import java.util.List;
 
@@ -15,10 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static sample.cafekiosk.spring.domain.product.ProductSellingStatus.*;
 import static sample.cafekiosk.spring.domain.product.ProductType.HANDMADE;
 
-//@SpringBootTest
-@ActiveProfiles("test") // application.yml test profile로 동작
-@DataJpaTest
-class ProductRepositoryTest {
+
+@Transactional
+class ProductRepositoryTest extends IntegrationTestSupport {
 
     /**
      * OrderServiceTest에서는 데이터 클랜징 작업을 해줘야 통합테스트가 통과하지만

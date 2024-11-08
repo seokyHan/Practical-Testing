@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import sample.cafekiosk.spring.IntegrationTestSupport;
 import sample.cafekiosk.spring.api.controller.order.request.OrderCreateRequest;
 import sample.cafekiosk.spring.api.service.order.response.OrderResponse;
 import sample.cafekiosk.spring.domain.order.OrderRepository;
@@ -26,9 +27,8 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static sample.cafekiosk.spring.domain.product.ProductSellingStatus.*;
 import static sample.cafekiosk.spring.domain.product.ProductType.*;
 
-@ActiveProfiles("test")
-@SpringBootTest
-class OrderServiceTest {
+
+class OrderServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private OrderService orderService;
@@ -180,7 +180,14 @@ class OrderServiceTest {
 
         Stock stock1 = Stock.create("001", 2);
         Stock stock2 = Stock.create("002", 2);
-        stock1.deductQuantity(1); // todo
+
+        /**
+         * deductQuantity 짚고 넘어가야할 포인트
+         * given 절에서 값을 주입 받는데 분기문과 논리문과 같은 논리구조가 들어가기 때문에 한번 더 생각 해야하기 때문에 좋지 않다.
+         * 우리가 원하는건 then 절에서 테스트가 검증이 되어야 하는데 deductQuantity 즉 given 절에서 테스트가 실패가 일어나서 좋지 않다
+         * -> 테스트가 커질 수록 문제 찾기 어려워짐
+         */
+        stock1.deductQuantity(1);
         stockRepository.saveAll(List.of(stock1, stock2));
 
 
